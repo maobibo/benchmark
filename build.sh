@@ -48,6 +48,50 @@ build_scimark() {
 	popd
 }
 
+build_lmbench() {
+	SRCPATH="490.lmbench"
+	pushd $SRCPATH
+	make OS=lmbench  CC=$GCC
+	cp -rf bin/lmbench ../${OBJPATH}
+	rm -rf bin
+	popd
+}
+
+build_openssl() {
+	SRCPATH="403.openssl"
+	pushd $SRCPATH
+	if [ $ARCH = "x86" ]
+	then
+		CC=$GCC ./Configure linux-x86_64
+		make
+	fi
+	if [ $ARCH = "arm" ]
+	then
+		CC=$GCC ./Configure linux-armv4
+		make
+	fi
+	cp apps/openssl ../${OBJPATH}
+	make clean
+	popd
+}
+
+build_cachebench() {
+	SRCPATH="410.cachebench"
+	pushd $SRCPATH
+	make CC=$GCC
+	mv cachebench ../${OBJPATH}
+	popd
+}
+
+
+build_memspeed() {
+	SRCPATH="412.memspeed"
+	pushd $SRCPATH
+	make CC=$GCC
+	mv memspeed ../${OBJPATH}
+	popd
+}
+
 build_prepare() {
 	rm -rf ${OBJPATH}
 	mkdir -p ${OBJPATH}
@@ -77,7 +121,12 @@ fi
 
 
 build_prepare
-build_linpack
-build_coremark
-build_scimark
+#build_linpack
+#build_coremark
+#build_scimark
+#build_lmbench
+#build_openssl
+
+build_cachebench
+build_memspeed
 
