@@ -92,6 +92,60 @@ build_memspeed() {
 	popd
 }
 
+build_iperf() {
+	SRCPATH="420.iperf"
+	pushd $SRCPATH
+	if [ $ARCH = "arm" ]
+	then
+		ac_cv_func_malloc_0_nonnull=yes ./configure --host=$ARMCROSS
+	fi
+	if [ $ARCH = "x86" ]
+	then
+		./configure
+	fi
+	make
+	cp src/iperf ../${OBJPATH}
+	make distclean
+	popd
+}
+
+build_netperf() {
+	SRCPATH="421.netperf"
+	pushd $SRCPATH
+	if [ $ARCH = "arm" ]
+	then
+		ac_cv_func_setpgrp_void=yes ./configure --host=$ARMCROSS
+		ac_cv_func_malloc_0_nonnull=yes ./configure --host=$ARMCROSS
+	fi
+	if [ $ARCH = "x86" ]
+	then
+		./configure
+	fi
+	make
+	cp src/netperf ../${OBJPATH}
+	cp src/netserver ../${OBJPATH}
+	make distclean
+	popd
+}
+
+build_iozone() {
+	SRCPATH="430.iozone"
+	pushd $SRCPATH
+	if [ $ARCH = "x86" ]
+	then
+		 make linux-AMD64
+	fi
+
+	if [ $ARCH = "arm" ]
+	then
+		make linux-arm CC=arm-linux-gnueabihf-gcc GCC=arm-linux-gnueabihf-gcc
+	fi
+	cp iozone ../${OBJPATH}
+	cp fileop ../${OBJPATH}
+	make clean
+	popd
+}
+
 build_prepare() {
 	rm -rf ${OBJPATH}
 	mkdir -p ${OBJPATH}
@@ -127,6 +181,12 @@ build_prepare
 #build_lmbench
 #build_openssl
 
-build_cachebench
-build_memspeed
+#build_cachebench
+#build_memspeed
 
+# network benchmark building
+build_iperf
+build_netperf
+
+# disk/filesystem benchmark building
+build_iozone
